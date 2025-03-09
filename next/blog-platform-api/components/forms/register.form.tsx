@@ -7,31 +7,39 @@ import { Button } from "../ui/button";
 import publicApi from "@/lib/api/public.api";
 import { handleAxiosError } from "@/lib/utils";
 import { LoaderCircle } from "lucide-react";
+import useAuthStore from "@/stores/auth.store";
+import { useRouter } from "next/navigation";
 
 const RegisterForm = () => {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { setIsAuthenticated, setIsLoadingAuth, setUserData, isLoadingAuth } =
+    useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsLoadingAuth(true);
     setError("");
     try {
-      await publicApi.post("/auth/register", {
+      const { data } = await publicApi.post("/auth/register", {
         name,
         email,
         password,
         password_confirmation: confirmPassword,
       });
+
+      setUserData(data.data);
+      setIsAuthenticated(true);
+      router.push("/");
     } catch (err) {
       const errorAxios = handleAxiosError(err);
       setError(errorAxios);
     } finally {
-      setIsLoading(false);
+      setIsLoadingAuth(false);
     }
   };
 
@@ -96,7 +104,7 @@ const RegisterForm = () => {
 
       {/* Submit */}
       <Button>
-        Submit {isLoading && <LoaderCircle className="animate-spin" />}
+        Submit {isLoadingAuth && <LoaderCircle className="animate-spin" />}
       </Button>
     </form>
   );

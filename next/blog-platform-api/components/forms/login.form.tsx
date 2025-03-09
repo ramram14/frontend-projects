@@ -8,29 +8,34 @@ import publicApi from "@/lib/api/public.api";
 import { handleAxiosError } from "@/lib/utils";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import useAuthStore from "@/stores/auth.store";
 
 const LoginForm = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { setIsAuthenticated, setIsLoadingAuth, setUserData, isLoadingAuth } =
+    useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsLoadingAuth(true);
     setError("");
     try {
-      await publicApi.post("/auth/login", {
+      const { data } = await publicApi.post("/auth/login", {
         email,
         password,
       });
+
+      setUserData(data.data);
+      setIsAuthenticated(true);
       router.push("/");
     } catch (err) {
       const errorAxios = handleAxiosError(err);
       setError(errorAxios);
     } finally {
-      setIsLoading(false);
+      setIsLoadingAuth(false);
     }
   };
 
@@ -68,7 +73,7 @@ const LoginForm = () => {
 
       {/* Submit */}
       <Button>
-        Submit {isLoading && <LoaderCircle className="animate-spin" />}
+        Submit {isLoadingAuth && <LoaderCircle className="animate-spin" />}
       </Button>
     </form>
   );
