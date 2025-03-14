@@ -6,7 +6,7 @@ import RightSideNavbar from "./right.side.navbar";
 
 const Navbar = () => {
   return (
-    <nav className="sticky top-0 z-10 flex items-center justify-between p-2 md:px-10 border-b-2 border-black">
+    <nav className="sticky top-0 z-10 flex items-center justify-between p-2 md:px-10 border-b-2 border-black bg-white">
       <div className="flex items-center gap-5">
         {/* Logo */}
         <Link href="/">

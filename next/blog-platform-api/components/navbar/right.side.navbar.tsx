@@ -9,13 +9,12 @@ import { User as UserIcon } from "lucide-react";
 const RightSideNavbar = () => {
   const router = useRouter();
   const { isAuthenticated, userData } = useAuthStore();
-  console.log(userData);
   return (
     <div className="flex items-center gap-2">
       {isAuthenticated ? (
         // Authenticated User
         <>
-          <Button variant={"outline"} className="cursor-pointer hidden md:block">
+          <Button variant={"outline"} className="cursor-pointer hidden md:block" onClick={() => router.push("/write")}>
             Create Post
           </Button>
 

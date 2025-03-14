@@ -2,11 +2,19 @@ import axios from "axios";
 
 const privateApi = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
-    withCredentials: true, // Cookie akan dikirim otomatis
-    headers: {
-        "Content-Type": "application/json"
-    }
+    withCredentials: true, // Cookie will be sent automatically
 });
+
+privateApi.interceptors.request.use((config) => {
+    if (config.data instanceof FormData) {
+        config.headers["Content-Type"] = "multipart/form-data";
+    } else {
+        config.headers["Content-Type"] = "application/json";
+    }
+    
+    return config;
+});
+
 
 let isRefreshing = false;
 let refreshSubscribers: (() => void)[] = [];
@@ -21,7 +29,7 @@ const onRefreshed = () => {
 };
 
 privateApi.interceptors.response.use(
-    (response) => response, // Jika sukses, langsung return response
+    (response) => response, // If successful, return the response
     async (error) => {
         const originalRequest = error.config;
 
@@ -39,13 +47,13 @@ privateApi.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                await privateApi.get("/auth/refresh-token"); // Refresh token otomatis via cookie
+                await privateApi.get("/auth/refresh-token"); // Refresh token automatically
                 isRefreshing = false;
                 onRefreshed();
-                return privateApi(originalRequest); // Kirim ulang request asli
+                return privateApi(originalRequest); // Resend the original request
             } catch (refreshError) {
                 isRefreshing = false;
-                return Promise.reject(refreshError); // Jika gagal, biarkan error diproses oleh frontend
+                return Promise.reject(refreshError); // If refresh fails, frontend will handle it
             }
         }
 
